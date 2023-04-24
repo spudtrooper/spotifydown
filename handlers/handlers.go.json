@@ -1,0 +1,37 @@
+[
+  {
+    "Handler": "Convert",
+    "Loc": {
+      "uri": "github.com/spudtrooper/spotifydown/blob/main/handlers/handlers.go",
+      "line": 55
+    }
+  },
+  {
+    "Handler": "Download",
+    "Loc": {
+      "uri": "github.com/spudtrooper/spotifydown/blob/main/handlers/handlers.go",
+      "line": 37
+    }
+  },
+  {
+    "Handler": "GetID",
+    "Loc": {
+      "uri": "github.com/spudtrooper/spotifydown/blob/main/handlers/handlers.go",
+      "line": 28
+    }
+  },
+  {
+    "Handler": "Metadata",
+    "Loc": {
+      "uri": "github.com/spudtrooper/spotifydown/blob/main/handlers/handlers.go",
+      "line": 19
+    }
+  },
+  {
+    "Handler": "Progress",
+    "Loc": {
+      "uri": "github.com/spudtrooper/spotifydown/blob/main/handlers/handlers.go",
+      "line": 46
+    }
+  }
+]
