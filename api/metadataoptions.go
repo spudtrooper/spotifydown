@@ -13,6 +13,8 @@ func (o MetadataOption) String() string { return o.s }
 type MetadataOptions interface {
 	Track() string
 	HasTrack() bool
+	Verbose() bool
+	HasVerbose() bool
 	ToBaseOptions() []BaseOption
 }
 
@@ -32,27 +34,51 @@ func MetadataTrackFlag(track *string) MetadataOption {
 	}, fmt.Sprintf("api.MetadataTrack(string %+v)", track)}
 }
 
-type metadataOptionImpl struct {
-	track     string
-	has_track bool
+func MetadataVerbose(verbose bool) MetadataOption {
+	return MetadataOption{func(opts *metadataOptionImpl) {
+		opts.has_verbose = true
+		opts.verbose = verbose
+	}, fmt.Sprintf("api.MetadataVerbose(bool %+v)", verbose)}
+}
+func MetadataVerboseFlag(verbose *bool) MetadataOption {
+	return MetadataOption{func(opts *metadataOptionImpl) {
+		if verbose == nil {
+			return
+		}
+		opts.has_verbose = true
+		opts.verbose = *verbose
+	}, fmt.Sprintf("api.MetadataVerbose(bool %+v)", verbose)}
 }
 
-func (m *metadataOptionImpl) Track() string  { return m.track }
-func (m *metadataOptionImpl) HasTrack() bool { return m.has_track }
+type metadataOptionImpl struct {
+	track       string
+	has_track   bool
+	verbose     bool
+	has_verbose bool
+}
+
+func (m *metadataOptionImpl) Track() string    { return m.track }
+func (m *metadataOptionImpl) HasTrack() bool   { return m.has_track }
+func (m *metadataOptionImpl) Verbose() bool    { return m.verbose }
+func (m *metadataOptionImpl) HasVerbose() bool { return m.has_verbose }
 
 type MetadataParams struct {
-	Track string `json:"track"`
+	Track   string `json:"track"`
+	Verbose bool   `json:"verbose"`
 }
 
 func (o MetadataParams) Options() []MetadataOption {
 	return []MetadataOption{
 		MetadataTrack(o.Track),
+		MetadataVerbose(o.Verbose),
 	}
 }
 
 // ToBaseOptions converts MetadataOption to an array of BaseOption
 func (o *metadataOptionImpl) ToBaseOptions() []BaseOption {
-	return []BaseOption{}
+	return []BaseOption{
+		BaseVerbose(o.Verbose()),
+	}
 }
 
 func makeMetadataOptionImpl(opts ...MetadataOption) *metadataOptionImpl {

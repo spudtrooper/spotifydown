@@ -13,6 +13,8 @@ func (o GetIDOption) String() string { return o.s }
 type GetIDOptions interface {
 	Track() string
 	HasTrack() bool
+	Verbose() bool
+	HasVerbose() bool
 	ToBaseOptions() []BaseOption
 }
 
@@ -32,27 +34,51 @@ func GetIDTrackFlag(track *string) GetIDOption {
 	}, fmt.Sprintf("api.GetIDTrack(string %+v)", track)}
 }
 
-type getIDOptionImpl struct {
-	track     string
-	has_track bool
+func GetIDVerbose(verbose bool) GetIDOption {
+	return GetIDOption{func(opts *getIDOptionImpl) {
+		opts.has_verbose = true
+		opts.verbose = verbose
+	}, fmt.Sprintf("api.GetIDVerbose(bool %+v)", verbose)}
+}
+func GetIDVerboseFlag(verbose *bool) GetIDOption {
+	return GetIDOption{func(opts *getIDOptionImpl) {
+		if verbose == nil {
+			return
+		}
+		opts.has_verbose = true
+		opts.verbose = *verbose
+	}, fmt.Sprintf("api.GetIDVerbose(bool %+v)", verbose)}
 }
 
-func (g *getIDOptionImpl) Track() string  { return g.track }
-func (g *getIDOptionImpl) HasTrack() bool { return g.has_track }
+type getIDOptionImpl struct {
+	track       string
+	has_track   bool
+	verbose     bool
+	has_verbose bool
+}
+
+func (g *getIDOptionImpl) Track() string    { return g.track }
+func (g *getIDOptionImpl) HasTrack() bool   { return g.has_track }
+func (g *getIDOptionImpl) Verbose() bool    { return g.verbose }
+func (g *getIDOptionImpl) HasVerbose() bool { return g.has_verbose }
 
 type GetIDParams struct {
-	Track string `json:"track"`
+	Track   string `json:"track"`
+	Verbose bool   `json:"verbose"`
 }
 
 func (o GetIDParams) Options() []GetIDOption {
 	return []GetIDOption{
 		GetIDTrack(o.Track),
+		GetIDVerbose(o.Verbose),
 	}
 }
 
 // ToBaseOptions converts GetIDOption to an array of BaseOption
 func (o *getIDOptionImpl) ToBaseOptions() []BaseOption {
-	return []BaseOption{}
+	return []BaseOption{
+		BaseVerbose(o.Verbose()),
+	}
 }
 
 func makeGetIDOptionImpl(opts ...GetIDOption) *getIDOptionImpl {

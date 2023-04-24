@@ -76,7 +76,9 @@ func (o DownloadParams) Options() []DownloadOption {
 
 // ToBaseOptions converts DownloadOption to an array of BaseOption
 func (o *downloadOptionImpl) ToBaseOptions() []BaseOption {
-	return []BaseOption{}
+	return []BaseOption{
+		BaseVerbose(o.Verbose()),
+	}
 }
 
 func makeDownloadOptionImpl(opts ...DownloadOption) *downloadOptionImpl {

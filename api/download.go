@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/url"
 	"regexp"
 	"strings"
@@ -65,7 +64,7 @@ type DownloadInfo struct {
 	TaskID string
 }
 
-//go:generate genopts --params --function Download --extends Base id:string verbose
+//go:generate genopts --params --function Download --extends Base id:string
 func (c *Client) Download(optss ...DownloadOption) (*DownloadInfo, error) {
 	opts := MakeDownloadOptions(optss...)
 	verbose := opts.Verbose()
@@ -75,7 +74,7 @@ func (c *Client) Download(optss ...DownloadOption) (*DownloadInfo, error) {
 		return nil, err
 	}
 	if verbose {
-		log.Printf("hash: %+v", hash)
+		c.logger.Printf("found hash: %+v", hash)
 	}
 
 	taskID, err := startConvert(hash)
@@ -83,7 +82,7 @@ func (c *Client) Download(optss ...DownloadOption) (*DownloadInfo, error) {
 		return nil, err
 	}
 	if verbose {
-		log.Printf("taskID: %+v", taskID)
+		c.logger.Printf("found taskID: %+v", taskID)
 	}
 
 	res := &DownloadInfo{

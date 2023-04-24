@@ -76,7 +76,9 @@ func (o ConvertParams) Options() []ConvertOption {
 
 // ToBaseOptions converts ConvertOption to an array of BaseOption
 func (o *convertOptionImpl) ToBaseOptions() []BaseOption {
-	return []BaseOption{}
+	return []BaseOption{
+		BaseVerbose(o.Verbose()),
+	}
 }
 
 func makeConvertOptionImpl(opts ...ConvertOption) *convertOptionImpl {

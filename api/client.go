@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/spudtrooper/goutil/io"
+	goutillog "github.com/spudtrooper/goutil/log"
 	"github.com/spudtrooper/goutil/request"
 )
 
@@ -16,10 +17,15 @@ var (
 	noUserCreds = flag.Bool("uber_no_user_creds", false, "Don't use user creds event if it exists")
 )
 
-//go:generate genopts --function Base
+//go:generate genopts --function Base verbose
+
+type ApiLogger interface {
+	goutillog.Logger
+}
 
 // Client is a client for spotifydown.com
 type Client struct {
+	logger goutillog.Logger
 }
 
 // NewClientFromFlags creates a new client from command line flags
@@ -28,9 +34,14 @@ func NewClientFromFlags() (*Client, error) {
 	return client, nil
 }
 
+//go:generate genopts --function NewClient "logger:ApiLogger"
 // NewClient creates a new client directly from the API Key
-func NewClient() *Client {
-	return &Client{}
+func NewClient(optss ...NewClientOption) *Client {
+	opts := MakeNewClientOptions(optss...)
+
+	return &Client{
+		logger: goutillog.Must(opts.Logger()),
+	}
 }
 
 // NewClientFromFile creates a new client from a JSON file like `user_creds-example.json`

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"time"
 )
 
@@ -9,25 +8,30 @@ type ConvertInfo struct {
 	Download string
 }
 
-//go:generate genopts --params --function Convert --extends Base track:string verbose
+//go:generate genopts --params --function Convert --extends Base track:string
 func (c *Client) Convert(optss ...ConvertOption) (*ConvertInfo, error) {
 	opts := MakeConvertOptions(optss...)
-	verbose := true || opts.Verbose()
+	verbose := opts.Verbose()
+	track := opts.Track()
 
-	id, err := c.GetID(GetIDTrack(opts.Track()))
+	if verbose {
+		c.logger.Printf("requesting id for track: %s", opts.Track())
+	}
+
+	id, err := c.GetID(GetIDTrack(track))
 	if err != nil {
 		return nil, err
 	}
 	if verbose {
-		log.Printf("id: %+v", id)
+		c.logger.Printf("have id: %+v", id)
 	}
 
-	d, err := c.Download(DownloadId(id.ID))
+	d, err := c.Download(DownloadId(id.ID), DownloadVerbose(verbose))
 	if err != nil {
 		return nil, err
 	}
 	if verbose {
-		log.Printf("download: %+v", d)
+		c.logger.Printf("starting download for %s", d.TaskID)
 	}
 
 	for {
@@ -36,7 +40,7 @@ func (c *Client) Convert(optss ...ConvertOption) (*ConvertInfo, error) {
 			return nil, err
 		}
 		if verbose {
-			log.Printf("progress: %+v", p)
+			c.logger.Printf("progress: %+v", p)
 		}
 		if p.Status == "finished" {
 			return &ConvertInfo{
