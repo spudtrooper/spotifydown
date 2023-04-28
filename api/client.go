@@ -2,19 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
-	"io/ioutil"
-	"log"
 
-	"github.com/spudtrooper/goutil/io"
 	goutillog "github.com/spudtrooper/goutil/log"
 	"github.com/spudtrooper/goutil/request"
-)
-
-var (
-	userCreds   = flag.String("uber_user_creds", ".user_creds.json", "file with user credentials")
-	noUserCreds = flag.Bool("uber_no_user_creds", false, "Don't use user creds event if it exists")
 )
 
 //go:generate genopts --function Base verbose
@@ -42,51 +33,6 @@ func NewClient(optss ...NewClientOption) *Client {
 	return &Client{
 		logger: goutillog.Must(opts.Logger()),
 	}
-}
-
-// NewClientFromFile creates a new client from a JSON file like `user_creds-example.json`
-func NewClientFromFile(credsFile string) (*Client, error) {
-	creds, err := readCreds(credsFile)
-	log.Printf("creds: %+v", creds)
-	if err != nil {
-		return nil, err
-	}
-	return &Client{}, nil
-}
-
-type Creds struct {
-}
-
-func ReadCredsFromFlags() (Creds, error) {
-	return readCreds(*userCreds)
-}
-
-func WriteCredsFromFlags(creds Creds) error {
-	b, err := json.Marshal(&creds)
-	if err != nil {
-		return err
-	}
-	if err := ioutil.WriteFile(*userCreds, b, 0755); err != nil {
-		return err
-	}
-	log.Printf("wrote to %s", *userCreds)
-	return nil
-}
-
-func readCreds(credsFile string) (creds Creds, ret error) {
-	if !io.FileExists(credsFile) {
-		return
-	}
-	credsBytes, err := ioutil.ReadFile(credsFile)
-	if err != nil {
-		ret = err
-		return
-	}
-	if err := json.Unmarshal(credsBytes, &creds); err != nil {
-		ret = err
-		return
-	}
-	return
 }
 
 func (c *Client) get(path string, payload interface{}) error {
